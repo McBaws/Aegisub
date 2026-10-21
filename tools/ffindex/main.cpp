@@ -78,7 +78,7 @@ static int progress(int64_t cur, int64_t total, void *last) {
 static int run(std::vector<fs::path> const& args) {
 	fs::path cache_dir;
 	std::string eh_name = "ignore";
-	bool force = false, dry = false;
+	bool force = false, dry = false, check = false;
 	std::vector<fs::path> files;
 
 	for (size_t i = 0; i < args.size(); ++i) {
@@ -87,10 +87,11 @@ static int run(std::vector<fs::path> const& args) {
 		else if (a == "--error-handling" && i + 1 < args.size()) eh_name = utf8(args[++i]);
 		else if (a == "--force") force = true;
 		else if (a == "--print-name") dry = true;
+		else if (a == "--check") check = true;
 		else files.push_back(args[i]);
 	}
 	if (cache_dir.empty() || files.empty()) {
-		std::fprintf(stderr, "usage: aegisub-ffindex --cache-dir DIR [--error-handling ignore|clear|stop|abort] [--force] [--print-name] VIDEO...\n");
+		std::fprintf(stderr, "usage: aegisub-ffindex --cache-dir DIR [--error-handling ignore|clear|stop|abort] [--force] [--print-name] [--check] VIDEO...\n");
 		return 2;
 	}
 
@@ -114,6 +115,12 @@ static int run(std::vector<fs::path> const& args) {
 
 		if (dry) {
 			std::printf("%s\n", utf8(idx).c_str());
+			continue;
+		}
+		// just report whether aegisub would accept the existing index, don't index
+		if (check) {
+			const char *state = !fs::exists(idx) ? "missing" : index_ok(idx, video_s, eh) ? "valid" : "stale";
+			std::printf("%s\t%s\n", state, utf8(idx).c_str());
 			continue;
 		}
 		if (!force && fs::exists(idx) && index_ok(idx, video_s, eh)) {
