@@ -594,3 +594,10 @@ aegisub = executable('aegisub', aegisub_src, version_h, libresrc_headers, aegisu
                      install_dir: bindir,
                      dependencies: deps,
                      win_subsystem: 'windows')
+
+# local helper for pre-building ffms2 indexes, links the same ffms2/FFmpeg as aegisub (not installed)
+if dep_avail.contains('FFMS2')
+    executable('aegisub-ffindex', 'tools/ffindex/main.cpp',
+               dependencies: dependency('ffms2', fallback: ['ffms2', 'ffms2_dep']),
+               install: false)
+endif
