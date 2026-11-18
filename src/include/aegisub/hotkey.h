@@ -36,7 +36,28 @@ void init();
 void clear();
 
 bool check(std::string_view context, agi::Context *c, wxKeyEvent &evt);
+/// Check a mouse button event against the hotkeys for the given context
+bool check(std::string_view context, agi::Context *c, wxMouseEvent &evt);
 std::string keypress_to_str(int key_code, int modifier);
+/// Get the hotkey string for a mouse button event, or an empty string if
+/// the button can't be used as a hotkey
+std::string mouse_button_to_str(wxMouseEvent const& evt);
+
+/// Is this one of the mouse events which can trigger hotkeys? These are the
+/// presses of the extra side buttons (usually back/forward). The app makes
+/// them propagate up the window hierarchy like key events, so they reach the
+/// same windows which check hotkeys for key events.
+bool is_mouse_hotkey_event(wxEventType type);
+
+/// Bind a handler to all mouse events which can trigger hotkeys
+template<typename Handler>
+void bind_mouse(wxEvtHandler *target, Handler const& handler) {
+	target->Bind(wxEVT_AUX1_DOWN, handler);
+	target->Bind(wxEVT_AUX1_DCLICK, handler);
+	target->Bind(wxEVT_AUX2_DOWN, handler);
+	target->Bind(wxEVT_AUX2_DCLICK, handler);
+}
+
 std::string_view get_hotkey_str_first(std::string_view context, std::string_view command);
 std::vector<std::string> get_hotkey_strs(std::string_view context, std::string_view command);
 

@@ -510,6 +510,16 @@ int AegisubApp::OnRun() {
 	return 1;
 }
 
+int AegisubApp::FilterEvent(wxEvent &event) {
+	// Mouse events are normally only sent to the window under the cursor,
+	// while key events propagate up to the parent windows, which is where most
+	// hotkeys are checked. Make the mouse buttons which can be bound as hotkeys
+	// propagate as well so that they're checked by the same windows.
+	if (hotkey::is_mouse_hotkey_event(event.GetEventType()))
+		event.ResumePropagation(wxEVENT_PROPAGATE_MAX);
+	return Event_Skip;
+}
+
 void AegisubApp::MacOpenFiles(wxArrayString const& filenames) {
 	OpenFiles(filenames);
 }

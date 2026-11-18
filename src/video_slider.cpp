@@ -63,6 +63,8 @@ VideoSlider::VideoSlider (wxWindow* parent, agi::Context *c)
 
 	c->videoSlider = this;
 	VideoOpened(c->project->VideoProvider());
+
+	hotkey::bind_mouse(this, [this](wxMouseEvent &evt) { hotkey::check("Video", this->c, evt); });
 }
 
 void VideoSlider::SetValue(int value) {

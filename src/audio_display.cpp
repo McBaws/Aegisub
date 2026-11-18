@@ -605,6 +605,7 @@ AudioDisplay::AudioDisplay(wxWindow *parent, AudioController *controller, agi::C
 	Bind(wxEVT_SET_FOCUS, &AudioDisplay::OnFocus, this);
 	Bind(wxEVT_CHAR_HOOK, &AudioDisplay::OnKeyDown, this);
 	Bind(wxEVT_KEY_DOWN, &AudioDisplay::OnKeyDown, this);
+	hotkey::bind_mouse(this, [this](wxMouseEvent &evt) { hotkey::check("Audio", this->context, evt); });
 	scroll_timer.Bind(wxEVT_TIMER, &AudioDisplay::OnScrollTimer, this);
 	load_timer.Bind(wxEVT_TIMER, &AudioDisplay::OnLoadTimer, this);
 }

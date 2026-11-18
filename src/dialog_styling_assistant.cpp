@@ -141,6 +141,7 @@ DialogStyling::DialogStyling(agi::Context *context)
 	Bind(wxEVT_CHAR_HOOK, &DialogStyling::OnCharHook, this);
 	style_name->Bind(wxEVT_CHAR_HOOK, &DialogStyling::OnCharHook, this);
 	style_name->Bind(wxEVT_KEY_DOWN, &DialogStyling::OnKeyDown, this);
+	hotkey::bind_mouse(this, [this](wxMouseEvent &evt) { hotkey::check("Styling Assistant", c, evt); });
 	play_video->Bind(wxEVT_BUTTON, &DialogStyling::OnPlayVideoButton, this);
 	play_audio->Bind(wxEVT_BUTTON, &DialogStyling::OnPlayAudioButton, this);
 	style_list->Bind(wxEVT_LISTBOX, &DialogStyling::OnListClicked, this);

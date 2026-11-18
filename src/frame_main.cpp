@@ -147,6 +147,7 @@ FrameMain::FrameMain()
 	StartupLog("Create views and inner main window controls");
 	InitContents();
 	BindConnection(OPT_SUB("Video/Detached/Enabled", &FrameMain::OnVideoDetach, this));
+	hotkey::bind_mouse(this, [this](wxMouseEvent &evt) { hotkey::check("Main Frame", context.get(), evt); });
 
 	StartupLog("Set up drag/drop target");
 	SetDropTarget(new AegisubFileDropTarget(context.get()));

@@ -221,13 +221,16 @@ static const char *keycode_name(int code) {
 	}
 }
 
-std::string keypress_to_str(int key_code, int modifier) {
+static std::string modifiers_to_str(int modifier) {
 	std::string combo;
-	if ((modifier != wxMOD_NONE)) {
-		if ((modifier & wxMOD_CMD) != 0) combo.append("Ctrl-");
-		if ((modifier & wxMOD_ALT) != 0) combo.append("Alt-");
-		if ((modifier & wxMOD_SHIFT) != 0) combo.append("Shift-");
-	}
+	if ((modifier & wxMOD_CMD) != 0) combo.append("Ctrl-");
+	if ((modifier & wxMOD_ALT) != 0) combo.append("Alt-");
+	if ((modifier & wxMOD_SHIFT) != 0) combo.append("Shift-");
+	return combo;
+}
+
+std::string keypress_to_str(int key_code, int modifier) {
+	std::string combo = modifiers_to_str(modifier);
 
 	if (key_code > 32 && key_code < 127)
 		combo += (char)key_code;
@@ -237,8 +240,22 @@ std::string keypress_to_str(int key_code, int modifier) {
 	return combo;
 }
 
-static bool check(std::string_view context, agi::Context *c, int key_code, int modifier) {
-	std::string combo = keypress_to_str(key_code, modifier);
+std::string mouse_button_to_str(wxMouseEvent const& evt) {
+	const char *name;
+	switch (evt.GetButton()) {
+	case wxMOUSE_BTN_AUX1: name = "Mouse4"; break;
+	case wxMOUSE_BTN_AUX2: name = "Mouse5"; break;
+	default: return "";
+	}
+	return modifiers_to_str(evt.GetModifiers()) + name;
+}
+
+bool is_mouse_hotkey_event(wxEventType type) {
+	return type == wxEVT_AUX1_DOWN || type == wxEVT_AUX1_DCLICK
+		|| type == wxEVT_AUX2_DOWN || type == wxEVT_AUX2_DCLICK;
+}
+
+static bool check(std::string_view context, agi::Context *c, std::string const& combo) {
 	if (combo.empty()) return false;
 
 	auto command = inst->Scan(context, combo, OPT_GET("Audio/Medusa Timing Hotkeys")->GetBool());
@@ -249,10 +266,10 @@ static bool check(std::string_view context, agi::Context *c, int key_code, int m
 	return false;
 }
 
-bool check(std::string_view context, agi::Context *c, wxKeyEvent &evt) {
+static bool check(std::string_view context, agi::Context *c, wxEvent &evt, std::string const& combo) {
 	evt.Skip(false);
 	try {
-		if (!check(context, c, evt.GetKeyCode(), evt.GetModifiers())) {
+		if (!check(context, c, combo)) {
 			evt.Skip();
 			return false;
 		}
@@ -263,6 +280,14 @@ bool check(std::string_view context, agi::Context *c, wxKeyEvent &evt) {
 			wxOK | wxICON_ERROR | wxCENTER | wxSTAY_ON_TOP);
 		return true;
 	}
+}
+
+bool check(std::string_view context, agi::Context *c, wxKeyEvent &evt) {
+	return check(context, c, evt, keypress_to_str(evt.GetKeyCode(), evt.GetModifiers()));
+}
+
+bool check(std::string_view context, agi::Context *c, wxMouseEvent &evt) {
+	return check(context, c, evt, mouse_button_to_str(evt));
 }
 
 std::vector<std::string> get_hotkey_strs(std::string_view context, std::string_view command) {
