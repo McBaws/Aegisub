@@ -158,6 +158,7 @@ DialogTranslation::DialogTranslation(agi::Context *c)
 	persist = std::make_unique<PersistLocation>(this, "Tool/Translation Assistant");
 
 	Bind(wxEVT_KEY_DOWN, &DialogTranslation::OnKeyDown, this);
+	hotkey::bind_mouse(this, [this](wxMouseEvent &evt) { hotkey::check("Translation Assistant", this->c, evt); });
 
 	blocks = active_line->ParseTags();
 	if (bad_block(blocks[0])) {

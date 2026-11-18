@@ -225,6 +225,7 @@ SubsEditBox::SubsEditBox(wxWindow *parent, agi::Context *context)
 	Bind(wxEVT_CHECKBOX, &SubsEditBox::OnCommentChange, this, comment_box->GetId());
 
 	Bind(wxEVT_CHAR_HOOK, &SubsEditBox::OnKeyDown, this);
+	hotkey::bind_mouse(this, [this](wxMouseEvent &evt) { hotkey::check("Subtitle Edit Box", c, evt); });
 	Bind(wxEVT_SIZE, &SubsEditBox::OnSize, this);
 	Bind(wxEVT_TIMER, [this](wxTimerEvent&) { commit_id = -1; });
 

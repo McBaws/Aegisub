@@ -637,6 +637,9 @@ public:
 		ctrl->SetInsertionPointEnd();
 		ctrl->SelectAll();
 		ctrl->Bind(wxEVT_CHAR_HOOK, &HotkeyRenderer::OnKeyDown, this);
+		hotkey::bind_mouse(ctrl, [this](wxMouseEvent &evt) {
+			ctrl->ChangeValue(to_wx(hotkey::mouse_button_to_str(evt)));
+		});
 		return ctrl;
 	}
 

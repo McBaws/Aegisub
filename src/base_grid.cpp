@@ -112,6 +112,10 @@ BaseGrid::BaseGrid(wxWindow* parent, agi::Context *context)
 	});
 
 	Bind(wxEVT_CONTEXT_MENU, &BaseGrid::OnContextMenu, this);
+	hotkey::bind_mouse(this, [this](wxMouseEvent &evt) {
+		if (!hotkey::check("Subtitle Grid", this->context, evt))
+			hotkey::check("Audio", this->context, evt);
+	});
 }
 
 BaseGrid::~BaseGrid() { }
